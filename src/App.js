@@ -7,7 +7,7 @@ class App extends Component {
   constructor() {
     super();
     console.info('constructor');console.log(React.version);
-    this.state = {firstCounter: 0, secondCounter: 0, toUpdate: false, users: []}
+    this.state = {firstCounter: 0, secondCounter: 0, toUpdate: false, users: [], filteredUsers: [], filter: ''}
   }
 
   handleClickFirstCounter = () => {
@@ -27,7 +27,6 @@ class App extends Component {
   }
 
   handleClickCounter = () => {
-
   }
 
   componentDidMount() {
@@ -36,7 +35,7 @@ class App extends Component {
     fetch('http://jsonplaceholder.typicode.com/users')
     .then(res => res.json())
     .then((data) => {
-      this.setState({ users: data.slice(0, 5) })
+      this.setState({ users: data.slice(0, 5), filteredUsers: data.slice(0, 5) })
     })
     .catch(console.log)
   }
@@ -58,11 +57,37 @@ class App extends Component {
     console.info('componentWillUnmount');
   }
 
+  handleChange = (event) => {
+    console.log(event)
+    if (!!event.target) {
+      const filterValue = event.target.value;
+      this.setState(() => ({
+        filter: filterValue
+      // }));
+      ,
+      filteredUsers: this.state.users.filter(user => {
+          if (!filterValue) {
+            return true;
+          }
+          else {
+            return user.name.toLowerCase().indexOf(filterValue) !== -1;
+          }
+        })
+      }));
+    }
+  }
+
   render() {
     console.info('render');
       return (
         <div className="App">
-          <CarList users={this.state.users}/>
+          <input
+          type="text"
+          value={this.state.filter}
+          onChange={this.handleChange}
+          />
+          <p>{this.state.filter}</p>
+          <CarList users={this.state.filteredUsers}/>
             {/* <button onClick={this.handleClickFirstCounter}>increment {this.state.firstCounter}</button>
             <button onClick={this.handleClickSecondCounter}>increment {this.state.secondCounter}</button>
             <button onClick={this.handleClickCounter}>increment {this.state.secondCounter}</button> */}
